@@ -29,7 +29,7 @@ def getChannel(guild):
 
 def removeChannel(guild):
     with conn:
-        c.execute(f"DELETE from accounts WHERE id = ?", (guild,))
+        c.execute(f"DELETE from channels WHERE guild = ?", (guild,))
 
 
 openai.api_key = os.getenv("TOKEN")
@@ -42,11 +42,21 @@ async def on_ready():
     
     print("this bot is online")
 
+#sets the channel where the bot will read from
 @client.command(aliases = ['c'])
 async def setChannel(ctx):
     c.execute("INSERT INTO channels VALUES (?, ?)", (ctx.guild.id, ctx.message.channel.name))
     conn.commit()
     await ctx.send(f"Channel set to {ctx.message.channel.mention}")
+
+#removes the channel where the bot will read from
+@client.command(aliases = ['r'])
+async def removeChannel(ctx):
+    try:
+        removeChannel(ctx.guild.id)
+        await ctx.send(f"Channel removed")
+    except:
+        await ctx.send(f"Channel not set")
 
 
 @client.event
